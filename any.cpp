@@ -24,8 +24,17 @@ public:
 class any final{
 	value_holder *value;
 public:
+	~any(){
+		delete value;
+	}
+	any(){
+		value =nullptr;
+	}
 	template<typename T>
 	any(const T &a):value(new holder<T>(a)){}
+	any(const any &a){
+		value = a.value->copy();
+	}
 	any &operator=(any const &a) {
 		if (*this != a){
 		delete value;
