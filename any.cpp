@@ -5,7 +5,7 @@
 using std::cout;
 class value_holder {
 public:
-	virtual const std::type_info & type() const= 0;
+	virtual std::type_index type() const noexcept= 0;
 	virtual value_holder * copy() const= 0;
 	virtual ~value_holder(){}
 };
@@ -14,26 +14,28 @@ class holder : public value_holder {
 public:
 	holder(const T &a):data(a){}
 	T data;
-	virtual const std::type_info & type() const{
+ 	virtual std::type_index & type() const noexcept override{
 		return typeid(T);
 	}
-	virtual value_holder *copy() const{
+	virtual value_holder *copy() const override{
 		return new holder(data);
 	}
 };
-class any {
+class any final{
+	value_holder *value;
 public:
 	template<typename T>
 	any(const T &a):value(new holder<T>(a)){}
 	any &operator=(any const &a) {
+		if (*this != a){
 		delete value;
 		value = a.value->copy();
+		}
 		return *this;
 	}
-	const std::type_info & type() {
+	std::type_index & type() {
 		return value ? value->type() : typeid(void);
 	}
-	value_holder * value;
 	any reset() {
 		delete value;
 		value = nullptr;
@@ -61,7 +63,7 @@ template<typename T>
 T any_cast(any &a) {
 	if (a.type() != typeid(T))
 		throw bad_any_cast();
-	return dynamic_cast<holder<T>*>(a.value)->data;
+	return static_cast<holder<T>*>(a.value)->data;
 }
 int main()
 {
