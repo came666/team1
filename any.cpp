@@ -24,6 +24,7 @@ public:
 class any final{
 	value_holder *value;
 public:
+	friend any make_any(any&);
 	~any(){
 		delete value;
 	}
