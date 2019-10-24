@@ -27,6 +27,8 @@ public:
 		if (*counter == 0) {
 			delete counter;
 			delete data;
+			counter = nullptr;
+			data = nullptr;
 		}
 	}
 	my_shared_ptr<T> &operator=(const my_shared_ptr<T> &a) {
